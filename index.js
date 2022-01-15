@@ -20,6 +20,13 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
   console.log('a user connected');
+
+  const path = [];
+
+  socket.on('test-location', (client) => {
+    path.push({lat: client.lat, lng: client.lng});
+    console.log(path);
+  });
 });
 
 server.listen(PORT, () => {
