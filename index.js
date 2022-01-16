@@ -4,6 +4,8 @@ const app = express();
 const http = require('http');
 const server = http.createServer(app);
 
+const fs = require('fs');
+
 const { Server } = require("socket.io");
 const io = new Server(server, {
   cors: {
@@ -26,6 +28,18 @@ io.on('connection', (socket) => {
   socket.on('test-location', (client) => {
     path.push({lat: client.lat, lng: client.lng});
     console.log(path);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('user disconnected', socket.id);
+
+    let rawdata = fs.readFileSync('bike_tracking.json');
+    let trackingHistory = JSON.parse(rawdata);
+
+    trackingHistory.push(path);
+
+    let data = JSON.stringify(trackingHistory);
+    fs.writeFileSync('bike_tracking.json', data);
   });
 });
 
