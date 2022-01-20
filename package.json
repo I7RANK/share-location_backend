@@ -18,6 +18,7 @@
   "homepage": "https://github.com/I7RANK/share-location_backend#readme",
   "dependencies": {
     "express": "^4.17.2",
-    "socket.io": "^4.4.1"
+    "socket.io": "^4.4.1",
+    "uuid": "^8.3.2"
   }
 }
