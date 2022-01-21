@@ -22,8 +22,6 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-  console.log('a user connected', socket.id);
-
   const path = [];
 
   socket.on('test-location', (client) => {
@@ -31,7 +29,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    console.log('user disconnected', socket.id);
+    console.log('user disconnected', socket.id, '\n');
 
     let rawdata = fs.readFileSync('bike_tracking.json');
     let trackingHistory = JSON.parse(rawdata);
@@ -43,8 +41,9 @@ io.on('connection', (socket) => {
   });
 
   socket.on('lobby', (clientObj) => {
+    console.log(`new looby join: ${socket.id} (${clientObj.type})`);
+
     if (clientObj.type === 'sender') {
-      console.log('im the sender', clientObj.socketId);
       const roomId = `${clientObj.socketId}@${uuidv4()}`;
 
       clientObj['roomId'] = roomId;
@@ -52,6 +51,12 @@ io.on('connection', (socket) => {
       socket.join(roomId);
 
       io.to(clientObj.socketId).emit('private message', clientObj);
+    } else if (clientObj.type === 'receiver') {
+      if (io.sockets.adapter.rooms.get(clientObj.roomId) !== undefined) {
+        socket.join(clientObj.roomId);
+      } else {
+        // No room for that id
+      }
     }
   });
 });
