@@ -7,6 +7,7 @@ const { Server } = require("socket.io");
 
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
+const chalk = require('chalk');
 
 const io = new Server(server, {
   cors: {
@@ -29,7 +30,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    console.log('user disconnected', socket.id, '\n');
+    console.log('\nuser disconnected', chalk.red(socket.id), '\n');
 
     let rawdata = fs.readFileSync('bike_tracking.json');
     let trackingHistory = JSON.parse(rawdata);
@@ -41,7 +42,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('lobby', (clientObj) => {
-    console.log(`new looby join: ${socket.id} (${clientObj.type})`);
+    console.log(`new looby join: ${chalk.green(socket.id)} (${chalk.blue(clientObj.type)})`);
 
     if (clientObj.type === 'sender') {
       const roomId = `${clientObj.socketId}@${uuidv4()}`;
