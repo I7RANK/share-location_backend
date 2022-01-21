@@ -45,7 +45,7 @@ io.on('connection', (socket) => {
   socket.on('lobby', (clientObj) => {
     if (clientObj.type === 'sender') {
       console.log('im the sender', clientObj.socketId);
-      const roomId = `${clientObj.socketId}-${uuidv4()}`;
+      const roomId = `${clientObj.socketId}@${uuidv4()}`;
 
       clientObj['roomId'] = roomId;
 
