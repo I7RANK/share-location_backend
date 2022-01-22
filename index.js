@@ -51,7 +51,7 @@ io.on('connection', (socket) => {
 
       socket.join(roomId);
 
-      io.to(clientObj.socketId).emit('private message', clientObj);
+      io.to(clientObj.socketId).emit('roomId', clientObj);
     } else if (clientObj.type === 'receiver') {
       if (io.sockets.adapter.rooms.get(clientObj.roomId) !== undefined) {
         socket.join(clientObj.roomId);
@@ -60,6 +60,24 @@ io.on('connection', (socket) => {
       }
     }
   });
+
+  const COUNTER = (function() {
+    let number = 0;
+
+    return function() {
+      number++;
+
+      return number;
+    }
+  })();
+
+  socket.on('toRoadsAPI', (clientObj) => {
+    clientObj['index'] = COUNTER();
+    console.log(clientObj);
+    // send to roadsAPI
+    // sends the response to sender an reciver
+    io.to(clientObj.roomId).emit('fromRoadsAPI', clientObj);
+  })
 });
 
 server.listen(PORT, () => {
