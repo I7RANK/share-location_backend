@@ -9,6 +9,8 @@ const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const chalk = require('chalk');
 
+const { getPathRoadsAPI } = require('./utils/roadsAPI/getPathRoadsAPI');
+
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:3000",
@@ -23,22 +25,10 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-  const path = [];
-
-  socket.on('test-location', (client) => {
-    path.push({lat: client.lat, lng: client.lng});
-  });
+  const pathHistory = [];
 
   socket.on('disconnect', () => {
     console.log('\nuser disconnected', chalk.red(socket.id), '\n');
-
-    let rawdata = fs.readFileSync('bike_tracking.json');
-    let trackingHistory = JSON.parse(rawdata);
-
-    trackingHistory.push(path);
-
-    let data = JSON.stringify(trackingHistory);
-    fs.writeFileSync('bike_tracking.json', data);
   });
 
   socket.on('lobby', (clientObj) => {
@@ -71,13 +61,27 @@ io.on('connection', (socket) => {
     }
   })();
 
-  socket.on('toRoadsAPI', (clientObj) => {
+  socket.on('toRoadsAPI', async (clientObj) => {
     clientObj['index'] = COUNTER();
     console.log(clientObj);
+
+    pathHistory.push(clientObj)
+
+    if (pathHistory.length < 2) return;
+
     // send to roadsAPI
+    const l = pathHistory.length;
+    const firstPath = pathHistory[l - 2];
+    const secondPath = pathHistory[l - 2];
+
+    let myPath = `${firstPath.lat},${firstPath.lng}|`
+    myPath += `${secondPath.lat},${secondPath.lng}`
+
+    const roadsResponse = await getPathRoadsAPI(myPath)
+
     // sends the response to sender an reciver
-    io.to(clientObj.roomId).emit('fromRoadsAPI', clientObj);
-  })
+    io.to(clientObj.roomId).emit('fromRoadsAPI', roadsResponse.data);
+  });
 });
 
 server.listen(PORT, () => {

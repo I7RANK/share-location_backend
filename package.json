@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/I7RANK/share-location_backend#readme",
   "dependencies": {
+    "axios": "^0.25.0",
     "chalk": "^4.1.2",
     "express": "^4.17.2",
     "socket.io": "^4.4.1",
