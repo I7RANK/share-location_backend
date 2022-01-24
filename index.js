@@ -72,10 +72,10 @@ io.on('connection', (socket) => {
     // send to roadsAPI
     const l = pathHistory.length;
     const firstPath = pathHistory[l - 2];
-    const secondPath = pathHistory[l - 2];
+    const secondPath = pathHistory[l - 1];
 
-    let myPath = `${firstPath.lat},${firstPath.lng}|`
-    myPath += `${secondPath.lat},${secondPath.lng}`
+    let myPath = `${firstPath.lat}%2C${firstPath.lng}|`
+    myPath += `${secondPath.lat}%2C${secondPath.lng}`
 
     const roadsResponse = await getPathRoadsAPI(myPath)
 
