@@ -5,3 +5,7 @@ This repo contains only the Backend code to see the Frontend go to [here](https:
 - NodeJS
 - express
 - Socket.io
+
+### And in the server:
+- Nginx
+- AWS (EC2)
