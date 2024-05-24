@@ -3,20 +3,21 @@ const res = require('express/lib/response');
 const app = express();
 const http = require('http');
 const server = http.createServer(app);
-const { Server } = require("socket.io");
+const { Server } = require('socket.io');
 
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const chalk = require('chalk');
+require('dotenv').config();
 
 const { getPathRoadsAPI } = require('./utils/roadsAPI/getPathRoadsAPI');
 
 const io = new Server(server, {
   cors: {
-    origin: "*",
-    methods: ["GET"]
-  }
-});;
+    origin: '*',
+    methods: ['GET'],
+  },
+});
 
 const PORT = 3001;
 
@@ -32,7 +33,11 @@ io.on('connection', (socket) => {
   });
 
   socket.on('lobby', (clientObj) => {
-    console.log(`new looby join: ${chalk.green(socket.id)} (${chalk.blue(clientObj.type)})`);
+    console.log(
+      `new looby join: ${chalk.green(socket.id)} (${chalk.blue(
+        clientObj.type
+      )})`
+    );
 
     if (clientObj.type === 'sender') {
       const roomId = `${clientObj.socketId}@${uuidv4()}`;
@@ -51,21 +56,21 @@ io.on('connection', (socket) => {
     }
   });
 
-  const COUNTER = (function() {
+  const COUNTER = (function () {
     let number = 0;
 
-    return function() {
+    return function () {
       number++;
 
       return number;
-    }
+    };
   })();
 
   socket.on('toRoadsAPI', async (clientObj) => {
     clientObj['index'] = COUNTER();
     console.log(clientObj);
 
-    pathHistory.push(clientObj)
+    pathHistory.push(clientObj);
 
     if (pathHistory.length < 2) return;
 
@@ -74,10 +79,10 @@ io.on('connection', (socket) => {
     const firstPath = pathHistory[l - 2];
     const secondPath = pathHistory[l - 1];
 
-    let myPath = `${firstPath.lat}%2C${firstPath.lng}|`
-    myPath += `${secondPath.lat}%2C${secondPath.lng}`
+    let myPath = `${firstPath.lat}%2C${firstPath.lng}|`;
+    myPath += `${secondPath.lat}%2C${secondPath.lng}`;
 
-    const roadsResponse = await getPathRoadsAPI(myPath)
+    const roadsResponse = await getPathRoadsAPI(myPath);
 
     // sends the response to sender an reciver
     io.to(clientObj.roomId).emit('fromRoadsAPI', roadsResponse.data);
